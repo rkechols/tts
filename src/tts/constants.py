@@ -1,4 +1,4 @@
 from pathlib import Path
 
-
-DATA_DIR_DEFAULT = Path("data")
+TEXT_DIR_DEFAULT = Path("data/text")
+AUDIO_DIR_DEFAULT = Path("data/audio")

@@ -23,9 +23,6 @@ extend-ignore = [
     "PLR09", "PLR2004", "TRY003", "TRY301",
     # Actually makes code harder to read:
     "UP015", "PT003", "SIM108",
-
-    # print:
-    "T201",
 ]
 
 [lint.per-file-ignores]
