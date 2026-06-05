@@ -12,6 +12,7 @@ BIONICLE_PREFIXES = ["Ga", "Ko", "Le", "Onu", "Po", "Ta"]
 
 REPLACEMENTS = {
     re.compile(r"’"): "'",  # noqa: RUF001
+    re.compile(r"[“”]"): '"',
     re.compile(r"\b(ga|ko|le|onu|po|ta)-", re.IGNORECASE): r"\1 ",
 }
 
