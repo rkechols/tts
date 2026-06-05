@@ -20,6 +20,7 @@ def set_logging_config():
         },
         "loggers": {
             "__main__": {"level": logging.DEBUG},
+            "kokoro": {"level": logging.DEBUG},
             "tts": {"level": logging.DEBUG},
         },
         "root": {

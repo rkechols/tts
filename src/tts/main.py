@@ -1,15 +1,28 @@
 import logging
 from argparse import ArgumentParser
+from functools import cache
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-# from kokoro import KPipeline
-from tts.constants import AUDIO_DIR_DEFAULT, TEXT_DIR_DEFAULT
+if TYPE_CHECKING:
+    from kokoro import KPipeline
+
+from tts.constants import AUDIO_DIR_DEFAULT, KOKORO_LANG_CODE, TEXT_DIR_DEFAULT
 from tts.logging_config import set_logging_config
+
+
+@cache
+def load_kokoro() -> KPipeline:
+    from kokoro import KPipeline  # noqa: PLC0415
+
+    return KPipeline(lang_code=KOKORO_LANG_CODE, repo_id="hexgrad/Kokoro-82M")
 
 
 def process(*, text_file: Path, audio_file_destination: Path):
     logger = logging.getLogger("tts.main.process")
     logger.warning(f"TODO: process {text_file} -> {audio_file_destination}")
+    pipeline = load_kokoro()
+    logger.info(str(type(pipeline)))
 
 
 def main(*, text_files_dir: Path, audio_files_dir: Path, force_reprocess: bool = False):
