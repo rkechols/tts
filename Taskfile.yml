@@ -3,7 +3,7 @@
 version: '3'
 
 tasks:
-  main:
-    desc: Run main.py
+  clean:
+    desc: Run tts.clean_text
     cmds:
-      - uv run main.py
+      - uv run -m tts.clean_text {{.CLI_ARGS}}
