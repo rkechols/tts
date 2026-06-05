@@ -40,4 +40,5 @@ reportUnusedCallResult = false
 # Bad libs:
 allowedUntypedLibraries = [
     "kokoro",
+    "soundfile",
 ]
