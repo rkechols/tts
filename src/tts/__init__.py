@@ -24,7 +24,7 @@ def _fix_kokoro_logging():
     kokoro_init_file.copy(kokoro_dir / "__init__.py.bak")
     kokoro_init_file.write_text(_NEW_KOKORO_INIT_CONTENTS, encoding="utf-8")
 
-    for kokoro_py_file in kokoro_dir.glob("*.py"):
+    for kokoro_py_file in kokoro_dir.rglob("*.py"):
         kokoro_py_file_contents = kokoro_py_file.read_text(encoding="utf-8")
         kokoro_py_file_contents_new = kokoro_py_file_contents.replace(
             "from loguru import logger",
