@@ -7,7 +7,11 @@ tasks:
     desc: Run tts.clean_text
     cmds:
       - uv run -m tts.clean_text {{.CLI_ARGS}}
-  main:
-    desc: Run tts.main
+  run_tts:
+    desc: Run tts.run_tts
     cmds:
-      - uv run -m tts.main {{.CLI_ARGS}}
+      - uv run -m tts.run_tts {{.CLI_ARGS}}
+  pipeline:
+    desc: Run tts.pipeline
+    cmds:
+      - uv run -m tts.pipeline {{.CLI_ARGS}}

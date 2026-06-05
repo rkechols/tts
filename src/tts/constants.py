@@ -1,8 +1,11 @@
 from pathlib import Path
 
-TEXT_DIR_DEFAULT = Path("data/text")
-AUDIO_DIR_DEFAULT = Path("data/audio")
+DATA_DIR_ROOT = Path("data")
+TEXT_DIR_ORIGINAL_DEFAULT = DATA_DIR_ROOT / "text"
+TEXT_DIR_MODIFIED_DEFAULT = DATA_DIR_ROOT / "text-modified"
+AUDIO_DIR_DEFAULT = DATA_DIR_ROOT / "audio"
 
+KOKORO_REPO_ID = "hexgrad/Kokoro-82M"
 # See docs for language and voice codes here: https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md
 KOKORO_LANG_CODE = "a"
 KOKORO_VOICE_CODE = "af_heart"
