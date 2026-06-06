@@ -125,10 +125,9 @@ async def scrape(out_dir: Path) -> bool:
         )
         n_errors = 0
         for result in results:
-            if result is None:
-                continue
-            n_errors += 1
-            LOGGER.error("Scraping error", exc_info=result)
+            if result is not None:
+                n_errors += 1
+                LOGGER.error("Scraping error", exc_info=result)
         if n_errors > 0:
             return False
         LOGGER.info(f"Successfully scraped all {len(results)} book(s)")
