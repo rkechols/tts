@@ -86,12 +86,18 @@ async def scrape_book(context: BrowserContext, book_start_url: str, out_dir: Pat
             chapter_file = book_dir / f"{i:02d}-{chapter_name_slug}.txt"
             await chapter_file.write_text(chapter_text + "\n")
 
-            optional_interlude_link = page.get_by_role("link", name="Optional Interlude")
-            if await optional_interlude_link.count() > 0:
-                await optional_interlude_link.click()
-                continue
-
-            await page.get_by_role("link", name="Next Chapter").click()
+            for optional_link_str in ["Optional Interlude", "Optional Epilogue"]:
+                optional_link = page.get_by_role("link", name=optional_link_str)
+                if await optional_link.count() > 0:
+                    await optional_link.click()
+                    break
+            else:  # No optional
+                next_chapter_link = page.get_by_role("link", name="Next Chapter")
+                if await next_chapter_link.count() > 0:
+                    await next_chapter_link.click()
+                else:
+                    LOGGER.info(f"Book {book_number} finished scraping")
+                    break
 
 
 async def scrape(out_dir: Path) -> bool:
