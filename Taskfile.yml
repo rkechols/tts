@@ -9,6 +9,11 @@ vars:
   VOCAB_FILE: vocabularies/bionicle.yaml
 
 tasks:
+  lint:
+    desc: Run linters, type-checkers, etc.
+    cmds:
+      - uvx prek run --all-files
+      - uv run basedpyright .
   clean_text:
     desc: Run tts.clean_text.main
     sources:
