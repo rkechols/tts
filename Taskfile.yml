@@ -16,6 +16,11 @@ tasks:
       - uvx prek run --all-files  # Includes ruff
       - uv run basedpyright .
 
+  test:
+    desc: Run unit tests
+    cmds:
+      - uv run pytest
+
   scrape-reset:
     desc: Clears output of task 'scrape' when source code changes
     sources:
