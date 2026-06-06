@@ -22,7 +22,7 @@ tasks:
     generates:
       - '{{.TEXT_DIR_CLEANED}}/**/*.txt'
     cmds:
-      - rm -r {{.TEXT_DIR_CLEANED}}  # This text cleaning is super fast, so it's not worth caching things
+      - rm -rf {{.TEXT_DIR_CLEANED}}  # This text cleaning is super fast, so it's not worth caching things
       - >-
         uv run -m tts.clean_text.main
         --text-files-dir-in {{.TEXT_DIR}}
@@ -33,7 +33,7 @@ tasks:
       - src/tts/kokoro/**/*.py
       - '{{.VOCAB_FILE}}'
     cmds:
-      - rm -r {{.AUDIO_DIR}}
+      - rm -rf {{.AUDIO_DIR}}
   kokoro:
     desc: Run tts.kokoro.main
     sources:
