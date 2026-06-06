@@ -3,22 +3,21 @@ import re
 from argparse import ArgumentParser
 from pathlib import Path
 
-from tts.constants import TEXT_DIR_MODIFIED_DEFAULT, TEXT_DIR_ORIGINAL_DEFAULT
 from tts.logging_config import set_logging_config
 
 LOGGER = logging.getLogger("tts.clean_text")
 
-BIONICLE_PREFIXES = ["Ga", "Ko", "Le", "Onu", "Po", "Ta"]
+BIONICLE_PREFIXES = ["Av", "Ga", "Ko", "Le", "Onu", "Po", "Ta"]
 
 REPLACEMENTS = {
     re.compile(r"’"): "'",  # noqa: RUF001
     re.compile(r"[“”]"): '"',
-    re.compile(r"\b(ga|ko|le|onu|po|ta)-", re.IGNORECASE): r"\1 ",
+    re.compile(r"\b(av|ga|ko|le|onu|po|ta)-", re.IGNORECASE): r"\1 ",
 }
 
 
 def clean_text(*, text_files_dir_in: Path, text_files_dir_out: Path):
-    for file_in in text_files_dir_in.rglob("*.txt"):
+    for file_in in sorted(text_files_dir_in.rglob("*.txt")):
         file_content = file_in.read_text(encoding="utf-8")
         file_content_original = file_content
         for old_re, new in REPLACEMENTS.items():
@@ -33,9 +32,9 @@ def clean_text(*, text_files_dir_in: Path, text_files_dir_out: Path):
 
 if __name__ == "__main__":
     set_logging_config()
-    arg_parser = ArgumentParser(description="Clean text files in-place")
-    arg_parser.add_argument("--text-files-dir-in", "-i", type=Path, default=TEXT_DIR_ORIGINAL_DEFAULT)
-    arg_parser.add_argument("--text-files-dir-out", "-o", type=Path, default=TEXT_DIR_MODIFIED_DEFAULT)
+    arg_parser = ArgumentParser(description="Clean text files")
+    arg_parser.add_argument("--text-files-dir-in", "-i", type=Path, required=True)
+    arg_parser.add_argument("--text-files-dir-out", "-o", type=Path, required=True)
     args = arg_parser.parse_args()
     clean_text(
         text_files_dir_in=args.text_files_dir_in,

@@ -13,19 +13,17 @@ if TYPE_CHECKING:
     from kokoro import KPipeline
 from soundfile import SoundFile
 
-from tts.constants import (
-    AUDIO_DIR_DEFAULT,
+from tts.kokoro.constants import (
     KOKORO_LANG_CODE,
     KOKORO_OUTPUT_SAMPLERATE,
     KOKORO_REPO_ID,
     KOKORO_VOICE_CODE,
     OUTPUT_FILE_SUFFIX,
     OUTPUT_FORMAT_KOKORO,
-    TEXT_DIR_MODIFIED_DEFAULT,
 )
 from tts.logging_config import set_logging_config
 
-LOGGER = logging.getLogger("tts.run_tts")
+LOGGER = logging.getLogger("tts.kokoro")
 
 
 class VocabLoadingError(Exception):
@@ -49,12 +47,12 @@ def load_kokoro(vocab_phonemes_file: Path | None = None) -> KPipeline:
     except (OSError, YAMLError, pydantic.ValidationError) as e:
         raise VocabLoadingError("Failed to load vocabulary file") from e
 
-    from tts.kokoro_specialized import KPipelineSpecialized  # noqa: PLC0415
+    from tts.kokoro.kokoro_specialized import KPipelineSpecialized  # noqa: PLC0415
 
     return KPipelineSpecialized(vocab_phonemes, lang_code=KOKORO_LANG_CODE, repo_id=KOKORO_REPO_ID)
 
 
-def run_tts(*, text_file: Path, audio_file_destination: Path, vocab_phonemes_file: Path | None = None):
+def run_kokoro(*, text_file: Path, audio_file_destination: Path, vocab_phonemes_file: Path | None = None):
     # https://huggingface.co/hexgrad/Kokoro-82M
     text = text_file.read_text(encoding="utf-8")
     pipeline = load_kokoro(vocab_phonemes_file=vocab_phonemes_file)
@@ -74,7 +72,7 @@ def run_tts(*, text_file: Path, audio_file_destination: Path, vocab_phonemes_fil
             f.write(audio)
 
 
-def run_tts_many(
+def run_kokoro_many(
     *,
     text_files_dir: Path,
     audio_files_dir: Path,
@@ -92,7 +90,7 @@ def run_tts_many(
             continue
         LOGGER.info(f"Processing {text_file} -> {audio_file_destination}")
         try:
-            run_tts(
+            run_kokoro(
                 text_file=text_file,
                 audio_file_destination=audio_file_destination,
                 vocab_phonemes_file=vocab_phonemes_file,
@@ -111,12 +109,12 @@ def run_tts_many(
 if __name__ == "__main__":
     set_logging_config()
     arg_parser = ArgumentParser(description="Convert text files to audio files")
-    arg_parser.add_argument("--text-files-dir", "-t", type=Path, default=TEXT_DIR_MODIFIED_DEFAULT)
-    arg_parser.add_argument("--audio-files-dir", "-a", type=Path, default=AUDIO_DIR_DEFAULT)
+    arg_parser.add_argument("--text-files-dir", "-i", type=Path, required=True)
+    arg_parser.add_argument("--audio-files-dir", "-o", type=Path, required=True)
     arg_parser.add_argument("--vocab", "-v", type=Path, default=None)
     arg_parser.add_argument("--force-reprocess", "-f", action="store_true")
     args = arg_parser.parse_args()
-    success_ = run_tts_many(
+    success_ = run_kokoro_many(
         text_files_dir=args.text_files_dir,
         audio_files_dir=args.audio_files_dir,
         vocab_phonemes_file=args.vocab,

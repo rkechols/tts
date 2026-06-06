@@ -2,16 +2,53 @@
 
 version: '3'
 
+vars:
+  TEXT_DIR: data/text
+  TEXT_DIR_CLEANED: data/text-modified
+  AUDIO_DIR: data/audio
+  VOCAB_FILE: vocabularies/bionicle.yaml
+
 tasks:
-  clean:
-    desc: Run tts.clean_text
+  clean_text:
+    desc: Run tts.clean_text.main
+    sources:
+      - src/tts/clean_text/**/*.py
+      - '{{.TEXT_DIR}}/**/*.txt'
+    generates:
+      - '{{.TEXT_DIR_CLEANED}}/**/*.txt'
     cmds:
-      - uv run -m tts.clean_text {{.CLI_ARGS}}
-  run_tts:
-    desc: Run tts.run_tts
+      - rm -r {{.TEXT_DIR_CLEANED}}  # This text cleaning is super fast, so it's not worth caching things
+      - >-
+        uv run -m tts.clean_text.main
+        --text-files-dir-in {{.TEXT_DIR}}
+        --text-files-dir-out {{.TEXT_DIR_CLEANED}}
+  kokoro-reset:
+    desc: Clears output of task kokoro when source code changes
+    sources:
+      - src/tts/kokoro/**/*.py
+      - '{{.VOCAB_FILE}}'
     cmds:
-      - uv run -m tts.run_tts {{.CLI_ARGS}}
+      - rm -r {{.AUDIO_DIR}}
+  kokoro:
+    desc: Run tts.kokoro.main
+    sources:
+      - src/tts/kokoro/**/*.py
+      - '{{.TEXT_DIR_CLEANED}}/**/*.txt'
+      - '{{.VOCAB_FILE}}'
+    generates:
+      - '{{.AUDIO_DIR}}/**/*.mp3'
+    deps:
+      - kokoro-reset
+    cmds:
+      - >-
+        uv run -m tts.kokoro.main
+        --text-files-dir {{.TEXT_DIR_CLEANED}}
+        --audio-files-dir {{.AUDIO_DIR}}
+        --vocab {{.VOCAB_FILE}}
   pipeline:
-    desc: Run tts.pipeline
+    aliases:
+      - run
+    desc: Run full tts pipeline
     cmds:
-      - uv run -m tts.pipeline {{.CLI_ARGS}}
+      - task: clean_text
+      - task: kokoro

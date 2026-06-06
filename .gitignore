@@ -1,4 +1,5 @@
 /data/
+/.task/
 
 # IDE files
 .zed/

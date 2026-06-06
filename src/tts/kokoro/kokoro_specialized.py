@@ -6,7 +6,7 @@ from typing import Protocol, override
 from kokoro import KPipeline
 from misaki.token import MToken
 
-LOGGER = logging.getLogger("tts.kokoro_specialized")
+LOGGER = logging.getLogger("tts.kokoro.kokoro_specialized")
 
 
 class _G2P(Protocol):

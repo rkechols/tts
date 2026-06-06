@@ -21,8 +21,9 @@ def _fix_kokoro_logging():
     if not kokoro_init_file_contents.startswith("__version__ = '0.9.4'"):
         raise ValueError("Failed to confirm exact version of kokoro is 0.9.4")
 
-    kokoro_init_file.copy(kokoro_dir / "__init__.py.bak")
-    kokoro_init_file.write_text(_NEW_KOKORO_INIT_CONTENTS, encoding="utf-8")
+    if not (kokoro_init_file_backup := kokoro_dir / "__init__.py.bak").exists():
+        kokoro_init_file.copy(kokoro_init_file_backup)
+        kokoro_init_file.write_text(_NEW_KOKORO_INIT_CONTENTS, encoding="utf-8")
 
     for kokoro_py_file in kokoro_dir.rglob("*.py"):
         kokoro_py_file_contents = kokoro_py_file.read_text(encoding="utf-8")
