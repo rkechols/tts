@@ -9,11 +9,29 @@ vars:
   VOCAB_FILE: vocabularies/bionicle.yaml
 
 tasks:
+
   lint:
     desc: Run linters, type-checkers, etc.
     cmds:
-      - uvx prek run --all-files
+      - uvx prek run --all-files  # Includes ruff
       - uv run basedpyright .
+
+  scrape-reset:
+    desc: Clears output of task 'scrape' when source code changes
+    sources:
+      - src/tts/scrape/**/*.py
+    cmds:
+      - rm -rf {{.TEXT_DIR}}
+
+  scrape:
+    desc: Scrape text from internet
+    generates:
+      - '{{.TEXT_DIR}}/**/*.txt'
+    deps:
+      - scrape-reset
+    cmds:
+      - uv run -m tts.scrape.main --out-dir {{.TEXT_DIR}}
+
   clean_text:
     desc: Run tts.clean_text.main
     sources:
@@ -27,13 +45,15 @@ tasks:
         uv run -m tts.clean_text.main
         --text-files-dir-in {{.TEXT_DIR}}
         --text-files-dir-out {{.TEXT_DIR_CLEANED}}
+
   kokoro-reset:
-    desc: Clears output of task kokoro when source code changes
+    desc: Clears output of task 'kokoro' when source code changes
     sources:
       - src/tts/kokoro/**/*.py
       - '{{.VOCAB_FILE}}'
     cmds:
       - rm -rf {{.AUDIO_DIR}}
+
   kokoro:
     desc: Run tts.kokoro.main
     sources:
@@ -50,10 +70,12 @@ tasks:
         --text-files-dir {{.TEXT_DIR_CLEANED}}
         --audio-files-dir {{.AUDIO_DIR}}
         --vocab {{.VOCAB_FILE}}
+
   pipeline:
     aliases:
       - run
-    desc: Run full tts pipeline
+    desc: Run full pipeline
     cmds:
+      - task: scrape
       - task: clean_text
       - task: kokoro
