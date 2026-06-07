@@ -61,7 +61,17 @@ async def scrape_book(context: BrowserContext, book_start_url: str, out_dir: Pat
         book_dir = anyio.Path(out_dir / book_slug)
         await book_dir.mkdir(parents=True, exist_ok=True)
 
-        await page.get_by_role("link", name="Begin reading").click()
+        for link_str in [
+            "Begin reading (version with optional extras)",
+            "Begin reading (with optional prologue)",
+            "Begin reading",
+        ]:
+            link_locator = page.get_by_role("link", name=link_str)
+            if await link_locator.count() > 0:
+                await link_locator.click()
+                break
+        else:
+            raise RuntimeError(f'Failed to find "Begin reding" link on page {page.url}')
 
         for i in itertools.count():
             article_locator = page.get_by_role("article")
@@ -84,20 +94,21 @@ async def scrape_book(context: BrowserContext, book_start_url: str, out_dir: Pat
                 ]
             chapter_text = "\n\n".join(paragraph_texts)
             chapter_file = book_dir / f"{i:02d}-{chapter_name_slug}.txt"
-            await chapter_file.write_text(chapter_text + "\n")
+            await chapter_file.write_text(chapter_text + "\n", encoding="utf-8")
 
-            for optional_link_str in ["Optional Interlude", "Optional Epilogue"]:
-                optional_link = page.get_by_role("link", name=optional_link_str)
-                if await optional_link.count() > 0:
-                    await optional_link.click()
+            for link_str in [
+                "Optional Interlude",
+                "Optional Epilogue",
+                "Next Chapter (with optional extras)",
+                "Next Chapter",
+            ]:
+                link_locator = page.get_by_role("link", name=link_str).filter(has_not_text="video version")
+                if await link_locator.count() > 0:
+                    await link_locator.click()
                     break
             else:  # No optional
-                next_chapter_link = page.get_by_role("link", name="Next Chapter")
-                if await next_chapter_link.count() > 0:
-                    await next_chapter_link.click()
-                else:
-                    LOGGER.info(f"Book {book_number} finished scraping")
-                    break
+                LOGGER.info(f"Book {book_number} finished scraping")
+                return
 
 
 async def scrape(out_dir: Path) -> bool:
@@ -122,8 +133,6 @@ async def scrape(out_dir: Path) -> bool:
                 continue
             book_urls.append(book_url)
             await book_collapser.click()  # Close the collapser
-
-        # book_urls = [book_urls[0]]  # TODO: take this out
 
         results = await asyncio.gather(
             *(scrape_book(context, url, out_dir) for url in book_urls),
