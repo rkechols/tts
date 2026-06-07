@@ -51,7 +51,8 @@ async def scrape_book(context: BrowserContext, book_start_url: str, out_dir: Pat
         title_re = re.compile(r"Book (\d+): (.*)")
         title_locator = page.get_by_role("heading", name=title_re)
         await expect(title_locator).to_be_visible()
-        title_re_match = title_re.fullmatch(await title_locator.inner_text())
+        book_title_numbered = await title_locator.inner_text()
+        title_re_match = title_re.fullmatch(book_title_numbered)
         assert title_re_match is not None  # noqa: S101
         book_number = int(title_re_match.group(1))
         book_title = title_re_match.group(2)
@@ -60,6 +61,7 @@ async def scrape_book(context: BrowserContext, book_start_url: str, out_dir: Pat
 
         book_dir = anyio.Path(out_dir / book_slug)
         await book_dir.mkdir(parents=True, exist_ok=True)
+        await (book_dir / "00-title.txt").write_text(book_title_numbered + "\n")
 
         for link_str in [
             "Begin reading (version with optional extras)",
@@ -73,7 +75,7 @@ async def scrape_book(context: BrowserContext, book_start_url: str, out_dir: Pat
         else:
             raise RuntimeError(f'Failed to find "Begin reding" link on page {page.url}')
 
-        for i in itertools.count():
+        for i in itertools.count(1):
             article_locator = page.get_by_role("article")
             await expect(article_locator).to_have_count(1)
             chapter_name_slug = chapter_name_from_url(page.url)
