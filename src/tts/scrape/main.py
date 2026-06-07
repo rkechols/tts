@@ -61,7 +61,7 @@ async def scrape_book(context: BrowserContext, book_start_url: str, out_dir: Pat
 
         book_dir = anyio.Path(out_dir / book_slug)
         await book_dir.mkdir(parents=True, exist_ok=True)
-        await (book_dir / "00-title.txt").write_text(book_title_numbered + "\n")
+        await (book_dir / "00-title.txt").write_text(book_title_numbered + "\n", encoding="utf-8")
 
         for link_str in [
             "Begin reading (version with optional extras)",
