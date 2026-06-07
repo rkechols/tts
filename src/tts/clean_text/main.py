@@ -10,8 +10,11 @@ LOGGER = logging.getLogger("tts.clean_text")
 BIONICLE_PREFIXES = ["Av", "Ga", "Ko", "Le", "Onu", "Po", "Ta"]
 
 REPLACEMENTS = {
-    re.compile(r"’"): "'",  # noqa: RUF001
-    re.compile(r"[“”]"): '"',
+    re.compile("[‘’]"): "'",  # noqa: RUF001
+    re.compile("[“”]"): '"',
+    re.compile("[‐—–]"): "-",  # noqa: RUF001
+    re.compile("…"): "...",
+    re.compile("[\xa0\xad]"): "",
     re.compile(r"\b(av|ga|ko|le|onu|po|ta)-", re.IGNORECASE): r"\1 ",
 }
 
@@ -20,8 +23,10 @@ def clean_text(*, text_files_dir_in: Path, text_files_dir_out: Path):
     for file_in in sorted(text_files_dir_in.rglob("*.txt")):
         file_content = file_in.read_text(encoding="utf-8")
         file_content_original = file_content
+
         for old_re, new in REPLACEMENTS.items():
             file_content = old_re.sub(new, file_content)
+
         file_relative = file_in.relative_to(text_files_dir_in)
         file_out = text_files_dir_out / file_relative
         file_out.parent.mkdir(parents=True, exist_ok=True)
