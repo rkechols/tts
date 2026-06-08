@@ -13,8 +13,6 @@ LOGGER = logging.getLogger("tts.clean_text")
 
 DICTIONARY = set(cmudict.words())
 
-BIONICLE_PREFIXES = ["Av", "Ga", "Ko", "Le", "Onu", "Po", "Ta"]
-
 REGEX_REPLACEMENTS = {
     re.compile("[‘’]"): "'",  # noqa: RUF001
     re.compile("[“”]"): '"',
