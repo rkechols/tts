@@ -40,7 +40,7 @@ tasks:
   clean_text:
     desc: Run tts.clean_text.main
     sources:
-      - src/tts/clean_text/**/*.py
+      - src/tts/clean_text/**
       - src/tts/vocab.py
       - '{{.TEXT_DIR}}/**/*.txt'
     generates:
