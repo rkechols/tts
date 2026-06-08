@@ -41,6 +41,7 @@ tasks:
     desc: Run tts.clean_text.main
     sources:
       - src/tts/clean_text/**/*.py
+      - src/tts/vocab.py
       - '{{.TEXT_DIR}}/**/*.txt'
     generates:
       - '{{.TEXT_DIR_CLEANED}}/**/*.txt'
@@ -50,11 +51,13 @@ tasks:
         uv run -m tts.clean_text.main
         --text-files-dir-in {{.TEXT_DIR}}
         --text-files-dir-out {{.TEXT_DIR_CLEANED}}
+        --vocab {{.VOCAB_FILE}}
 
   kokoro-reset:
     desc: Clears output of task 'kokoro' when source code changes
     sources:
       - src/tts/kokoro/**/*.py
+      - src/tts/vocab.py
       - '{{.VOCAB_FILE}}'
     cmds:
       - rm -rf {{.AUDIO_DIR}}
@@ -63,6 +66,7 @@ tasks:
     desc: Run tts.kokoro.main
     sources:
       - src/tts/kokoro/**/*.py
+      - src/tts/vocab.py
       - '{{.TEXT_DIR_CLEANED}}/**/*.txt'
       - '{{.VOCAB_FILE}}'
     generates:
