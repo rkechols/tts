@@ -1,12 +1,19 @@
 import dataclasses
 import logging
 from collections.abc import Mapping
-from typing import Protocol, override
+from typing import ClassVar, Protocol, override
 
+import cmudict
 from kokoro import KPipeline
 from misaki.token import MToken
 
 LOGGER = logging.getLogger("tts.kokoro.kokoro_specialized")
+
+DICTIONARY = set(cmudict.words())
+
+
+def has_alpha(s: str) -> bool:
+    return any(c.isalpha() for c in s)
 
 
 class _G2P(Protocol):
@@ -15,6 +22,8 @@ class _G2P(Protocol):
 
 
 class _G2PWrapper(_G2P):
+    unknown_tokens: ClassVar[set[str]] = set()
+
     @staticmethod
     def standardize_token(s: str) -> str:
         return s.lower().replace("'", "")
@@ -33,6 +42,12 @@ class _G2PWrapper(_G2P):
         for i, token in enumerate(tokens):
             if known_phonemes := self.specialized_vocab.get(self.standardize_token(token.text)):
                 tokens[i] = dataclasses.replace(token, phonemes=known_phonemes)
+            else:
+                for subtoken in token.text.split("-"):
+                    if has_alpha(subtoken):
+                        subtoken_normalized = subtoken.lower().removesuffix("'s")
+                        if subtoken_normalized not in DICTIONARY:
+                            self.unknown_tokens.add(subtoken_normalized)
         return s, tokens
 
 

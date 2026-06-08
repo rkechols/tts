@@ -82,26 +82,33 @@ def run_kokoro_many(
     count_success = 0
     count_skip = 0
     count_failure = 0
-    for text_file in text_files_dir.rglob("*.txt"):
-        text_file_relative = text_file.relative_to(text_files_dir)
-        audio_file_destination = audio_files_dir / text_file_relative.with_suffix(OUTPUT_FILE_SUFFIX)
-        if not force_reprocess and audio_file_destination.is_file():
-            count_skip += 1
-            continue
-        LOGGER.info(f"Processing {text_file} -> {audio_file_destination}")
-        try:
-            run_kokoro(
-                text_file=text_file,
-                audio_file_destination=audio_file_destination,
-                vocab_phonemes_file=vocab_phonemes_file,
-            )
-        except VocabLoadingError:
-            raise  # Let this exception type propogate unchanged
-        except Exception:
-            count_failure += 1
-            LOGGER.exception(f"Failed to process {text_file}")
-        else:
-            count_success += 1
+    try:
+        for text_file in sorted(text_files_dir.rglob("*.txt")):
+            text_file_relative = text_file.relative_to(text_files_dir)
+            audio_file_destination = audio_files_dir / text_file_relative.with_suffix(OUTPUT_FILE_SUFFIX)
+            if not force_reprocess and audio_file_destination.is_file():
+                count_skip += 1
+                continue
+            LOGGER.info(f"Processing {text_file} -> {audio_file_destination}")
+            try:
+                run_kokoro(
+                    text_file=text_file,
+                    audio_file_destination=audio_file_destination,
+                    vocab_phonemes_file=vocab_phonemes_file,
+                )
+            except VocabLoadingError:
+                raise  # Let this exception type propogate unchanged
+            except Exception:
+                count_failure += 1
+                LOGGER.exception(f"Failed to process {text_file}")
+            else:
+                count_success += 1
+
+    finally:
+        with open("data/unknown-tokens.txt", "w", encoding="utf-8") as f:
+            for token in sorted(load_kokoro(vocab_phonemes_file=vocab_phonemes_file).g2p.unknown_tokens):
+                print(token, file=f)
+
     LOGGER.info(f"Successfully processed {count_success} file(s), {count_skip} skipped, {count_failure} failed")
     return count_failure == 0
 
