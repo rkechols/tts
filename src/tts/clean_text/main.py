@@ -14,7 +14,7 @@ REPLACEMENTS = {
     re.compile("[“”]"): '"',
     re.compile("[‐—–]"): "-",  # noqa: RUF001
     re.compile("…"): "...",
-    re.compile("[\xa0\xad]"): "",
+    re.compile("[\xa0\xad]"): " ",
     re.compile(r"\b(av|ga|ko|le|onu|po|ta)-", re.IGNORECASE): r"\1 ",
 }
 
