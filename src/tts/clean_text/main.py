@@ -21,6 +21,7 @@ REGEX_REPLACEMENTS = {
     re.compile("[\xa0\xad]"): " ",
     re.compile(r"\b(av|ga|ko|le|onu|po|ta)-", re.IGNORECASE): r"\1 ",
     re.compile(r"\ba+(r?)r*(g?)g*h+\b", re.IGNORECASE): r"a\1\2h",
+    re.compile("XV-I"): "XV-1",
 }
 
 
