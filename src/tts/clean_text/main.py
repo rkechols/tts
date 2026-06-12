@@ -7,7 +7,6 @@ import cmudict
 import yaml
 
 from tts.logging_config import set_logging_config
-from tts.vocab import load_vocab
 
 LOGGER = logging.getLogger("tts.clean_text")
 
@@ -37,9 +36,7 @@ def has_alpha(s: str) -> bool:
     return any(c.isalpha() for c in s)
 
 
-def clean_text(*, text_files_dir_in: Path, text_files_dir_out: Path, vocab_phonemes_file: Path):
-    vocab_phonemes = load_vocab(vocab_phonemes_file)  # noqa: F841
-
+def clean_text(*, text_files_dir_in: Path, text_files_dir_out: Path):
     for file_in in sorted(text_files_dir_in.rglob("*.txt")):
         file_content = file_in.read_text(encoding="utf-8")
         file_content_original = file_content
@@ -75,10 +72,8 @@ if __name__ == "__main__":
     arg_parser = ArgumentParser(description="Clean text files")
     arg_parser.add_argument("--text-files-dir-in", "-i", type=Path, required=True)
     arg_parser.add_argument("--text-files-dir-out", "-o", type=Path, required=True)
-    arg_parser.add_argument("--vocab", "-v", type=Path, default=None)
     args = arg_parser.parse_args()
     clean_text(
         text_files_dir_in=args.text_files_dir_in,
         text_files_dir_out=args.text_files_dir_out,
-        vocab_phonemes_file=args.vocab,
     )
